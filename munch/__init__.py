@@ -24,7 +24,8 @@
 __version__ = '2.1.1'
 VERSION = tuple(map(int, __version__.split('.')))
 
-__all__ = ('Munch', 'munchify', 'unmunchify')
+__all__ = ('Munch', 'munchify', 'unmunchify',
+           'Bunch', 'bunchify', 'unbunchify')  # Backwards compatibility names
 
 from .python3_compat import *   # pylint: disable=wildcard-import
 
@@ -375,3 +376,10 @@ try:
 
 except ImportError:
     pass
+
+
+# Backwards compatibility with original library
+
+Bunch = Munch
+bunchify = munchify
+unbunchify = unmunchify
