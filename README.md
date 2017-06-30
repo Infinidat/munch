@@ -89,14 +89,33 @@ In addition, Munch instances will have a ``toYAML()`` method that returns the YA
 Finally, Munch converts easily and recursively to (``unmunchify()``, ``Munch.toDict()``) and from (``munchify()``, ``Munch.fromDict()``) a normal ``dict``, making it easy to cleanly serialize them in other formats.
 
 
+Undefined
+---------
+
+If you want something that behaves more closely to JavaScript with regards to
+missing keys, you can use ``UMunch``. It returns the special object
+``undefined`` for any attributes that are missing.
+
+````py
+>>> b = UMunch({'hello': 'world!'})
+>>> b.hello
+'world!'
+>>> b.foo
+undefined
+>>> b.foo == None
+True
+>>> b.foo is None
+False
+````
+
+
 Miscellaneous
 -------------
 
-* It is safe to ``import *`` from this module. You'll get: ``Munch``, ``munchify``, and ``unmunchify``.
+* It is safe to ``import *`` from this module. You'll get: ``Munch``, ``UMunch``, ``munchify``, ``unmunchify`` and ``undefined``.
 * Ample Tests. Just run ``pip install tox && tox`` from the project root.
 
 Feedback
 --------
 
 Open a ticket / fork the project on [GitHub](http://github.com/Infinidat/munch).
-

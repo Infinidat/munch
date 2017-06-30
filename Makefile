@@ -6,7 +6,7 @@ detox-test:
 travis-test: test
 
 test: env
-	.env/bin/py.test tests munch --doctest-modules
+	.env/bin/py.test test_munch.py munch --doctest-modules
 
 coverage-test: env
 	.env/bin/coverage run .env/bin/nosetests -w tests

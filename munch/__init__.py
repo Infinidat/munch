@@ -24,7 +24,7 @@
 __version__ = '2.1.1'
 VERSION = tuple(map(int, __version__.split('.')))
 
-__all__ = ('Munch', 'munchify', 'unmunchify')
+__all__ = ('Munch', 'munchify', 'UMunch', 'undefined', 'unmunchify')
 
 from .python3_compat import *   # pylint: disable=wildcard-import
 
@@ -187,8 +187,8 @@ class Munch(dict):
 
     __members__ = __dir__  # for python2.x compatibility
 
-    @staticmethod
-    def fromDict(d):
+    @classmethod
+    def fromDict(cls, d):
         """ Recursively transforms a dictionary into a Munch via copy.
 
             >>> b = Munch.fromDict({'urmom': {'sez': {'what': 'what'}}})
@@ -197,10 +197,50 @@ class Munch(dict):
 
             See munchify for more info.
         """
-        return munchify(d)
+        return munchify(d, cls)
 
     def copy(self):
-        return Munch.fromDict(super(Munch, self).copy())
+        return type(self).fromDict(super(Munch, self).copy())
+
+
+class UMunch(Munch):
+    """
+    A Munch that returns `undefined` for missing keys.
+    """
+
+    def __getattr__(self, k):
+        try:
+            return super(UMunch, self).__getattr__(k)
+        except AttributeError:
+            return undefined
+
+
+class Undefined:
+    """
+    Behaves similarly to JavaScript's `undefined`:
+
+    bool(undefined) -> False
+    undefined == None -> True
+    undefined == undefined -> True
+    undefined is None -> False
+    undefined is undefined -> True
+    """
+
+    def __eq__(self, other):
+        if isinstance(other, Undefined):
+            return True
+        if other is None:
+            return True
+        return False
+
+    def __bool__(self):
+        return False
+
+    def __repr__(self):
+        return 'undefined'
+
+
+undefined = Undefined()
 
 
 # While we could convert abstract types like Mapping or Iterable, I think
@@ -210,7 +250,7 @@ class Munch(dict):
 # Should you disagree, it is not difficult to duplicate this function with
 # more aggressive coercion to suit your own purposes.
 
-def munchify(x):
+def munchify(x, factory=Munch):
     """ Recursively transforms a dictionary into a Munch via copy.
 
         >>> b = munchify({'urmom': {'sez': {'what': 'what'}}})
@@ -230,9 +270,9 @@ def munchify(x):
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return Munch((k, munchify(v)) for k, v in iteritems(x))
+        return factory((k, munchify(v, factory)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)(munchify(v) for v in x)
+        return type(x)(munchify(v, factory) for v in x)
     else:
         return x
 

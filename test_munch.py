@@ -1,6 +1,6 @@
 import json
 import pytest
-from munch import Munch, munchify, unmunchify
+from munch import Munch, munchify, unmunchify, UMunch, undefined
 
 
 def test_base():
@@ -171,3 +171,48 @@ def test_reserved_attributes(attrname):
         assert attr == {}
     else:
         assert callable(attr)
+
+
+def test_undefined():
+    assert undefined == None
+    assert undefined == undefined
+    assert undefined is undefined
+    assert undefined is not None
+
+
+def test_getattr_udef():
+    b = UMunch(bar='baz', lol={})
+    b.foo
+
+    assert b.bar == 'baz'
+    assert getattr(b, 'bar') == 'baz'
+    assert b['bar'] == 'baz'
+    assert b.lol is b['lol']
+    assert b.lol is getattr(b, 'lol')
+
+
+def test_setattr_udef():
+    b = UMunch(foo='bar', this_is='useful when subclassing')
+    assert hasattr(b.values, '__call__')
+
+    b.values = 'uh oh'
+    assert b.values == 'uh oh'
+
+    with pytest.raises(KeyError):
+        b['values']
+
+
+def test_delattr_udef():
+    b = UMunch(lol=42)
+    del b.lol
+
+    assert b.lol is undefined
+    with pytest.raises(KeyError):
+        b['lol']
+
+
+def test_munchify_udef():
+    b = munchify({'urmom': {'sez': {'what': 'what'}}}, UMunch)
+    assert b.urmom.sez.what == 'what'
+    assert b.urdad is undefined
+    assert b.urmom.sez.ni is undefined
