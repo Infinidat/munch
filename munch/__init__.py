@@ -226,6 +226,25 @@ class Munch(dict):
         return type(self).fromDict(self)
 
 
+def automunchify(data):
+    return munchify(data, AutoMunch)
+
+
+class AutoMunch(Munch):
+    def __setattr__(self, k, v):
+        """ Works the same as Munch.__setattr__ but if you supply
+            a dictionary as value it will convert it to another Munch.
+        """
+        if isinstance(v, (AutoMunch, Munch)):
+            v = automunchify(v.toDict())
+        elif isinstance(v, dict):
+            v = automunchify(v)
+        elif isinstance(v, list):
+            v = [automunchify(li) for li in v]
+
+        super(AutoMunch, self).__setattr__(k, v)
+
+
 class AutoMunch(Munch):
     def __setattr__(self, k, v):
         """ Works the same as Munch.__setattr__ but if you supply
