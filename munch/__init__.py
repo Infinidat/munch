@@ -616,6 +616,7 @@ try:
             return yaml.dump(self, **opts)
 
     def fromYAML(*args, **kwargs):
+        kwargs.setdefault('Loader', yaml.FullLoader)
         return munchify(yaml.load(*args, **kwargs))
 
     Munch.toYAML = toYAML

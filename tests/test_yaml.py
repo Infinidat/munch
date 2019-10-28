@@ -1,3 +1,4 @@
+import pytest
 from munch import Munch
 
 
@@ -8,7 +9,7 @@ def test_from_yaml(yaml):
       Clark : Evans
       Brian : Ingerson
       Oren  : Ben-Kiki
-    ''')
+    ''', Loader=yaml.FullLoader)
     assert data == {
         'Flow style': Munch(Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki'),
         'Block style': Munch(Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki'),
@@ -34,3 +35,11 @@ def test_toYAML(yaml):
     assert yaml.dump(b, default_flow_style=True) == '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\n'
     assert b.toYAML(Dumper=yaml.Dumper, default_flow_style=True) == \
         '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\n'
+
+
+@pytest.mark.usefixtures('yaml')
+def test_fromYAML():
+    yaml_str = 'foo:\n    bar:\n    - 1\n    - 2\n    hello: world\n'
+    obj = Munch.fromYAML(yaml_str)
+    assert obj == Munch(foo=Munch(bar=[1, 2], hello='world'))
+    assert obj.toYAML() == yaml_str
