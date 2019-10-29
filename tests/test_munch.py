@@ -1,3 +1,4 @@
+# pylint: disable=unnecessary-lambda
 import json
 import pickle
 from collections import namedtuple
@@ -23,7 +24,8 @@ def test_base():
 
     assert sorted([(k, b[k]) for k in b]) == [('foo', Munch({'lol': True})), ('hello', 42), ('ponies', 'are pretty!')]
 
-    assert "The {knights} who say {ni}!".format(**Munch(knights='lolcats', ni='can haz')) == 'The lolcats who say can haz!'
+    format_munch = Munch(knights='lolcats', ni='can haz')
+    assert "The {knights} who say {ni}!".format(**format_munch) == 'The lolcats who say can haz!'
 
 
 def test_contains():
@@ -48,7 +50,7 @@ def test_getattr():
     b = Munch(bar='baz', lol={})
 
     with pytest.raises(AttributeError):
-        b.foo
+        b.foo  # pylint: disable=pointless-statement
 
     assert b.bar == 'baz'
     assert getattr(b, 'bar') == 'baz'
@@ -65,7 +67,7 @@ def test_setattr():
     assert b.values == 'uh oh'
 
     with pytest.raises(KeyError):
-        b['values']
+        b['values']  # pylint: disable=pointless-statement
 
 
 def test_pickle():
@@ -75,7 +77,7 @@ def test_pickle():
 def test_automunch():
     b = AutoMunch()
     b.urmom = {'sez': {'what': 'what'}}
-    assert b.urmom.sez.what == 'what'
+    assert b.urmom.sez.what == 'what'  # pylint: disable=no-member
 
 
 def test_delattr():
@@ -83,10 +85,10 @@ def test_delattr():
     del b.lol
 
     with pytest.raises(KeyError):
-        b['lol']
+        b['lol']  # pylint: disable=pointless-statement
 
     with pytest.raises(AttributeError):
-        b.lol
+        b.lol  # pylint: disable=pointless-statement
 
 
 def test_toDict():
@@ -111,7 +113,7 @@ def test_repr():
     assert "1: 2" in repr(with_spaces)
     assert "'c': Munch({'simple': 5})" in repr(with_spaces)
 
-    assert eval(repr(with_spaces)) == Munch({'a b': 9, 1: 2, 'c': Munch({'simple': 5})})
+    assert eval(repr(with_spaces)) == Munch({'a b': 9, 1: 2, 'c': Munch({'simple': 5})})  # pylint: disable=eval-used
 
 
 def test_dir():
@@ -149,7 +151,8 @@ def test_munchify_with_namedtuple():
     assert b.top.prop_a == 'in named tuple'
     assert b.top.prop_b == 3
 
-    b = munchify({'top': {'middle': nt(prop_a={'leaf': 'should be munchified'}, prop_b={'leaf': 'should be munchified'})}})
+    b = munchify({'top': {'middle': nt(prop_a={'leaf': 'should be munchified'},
+                                       prop_b={'leaf': 'should be munchified'})}})
     assert b.top.middle.prop_a.leaf == 'should be munchified'
     assert b.top.middle.prop_b.leaf == 'should be munchified'
 
@@ -159,13 +162,17 @@ def test_unmunchify():
     assert sorted(unmunchify(b).items()) == [('foo', {'lol': True}), ('hello', 42), ('ponies', 'are pretty!')]
 
     b = Munch(foo=['bar', Munch(lol=True)], hello=42, ponies=('are pretty!', Munch(lies='are trouble!')))
-    assert sorted(unmunchify(b).items()) == [('foo', ['bar', {'lol': True}]), ('hello', 42), ('ponies', ('are pretty!', {'lies': 'are trouble!'}))]
+    assert sorted(unmunchify(b).items()) == [('foo', ['bar', {'lol': True}]),
+                                             ('hello', 42),
+                                             ('ponies', ('are pretty!', {'lies': 'are trouble!'}))]
 
 
 def test_unmunchify_namedtuple():
     nt = namedtuple('nt', ['prop_a', 'prop_b'])
     b = Munch(foo=Munch(lol=True), hello=nt(prop_a=42, prop_b='yop'), ponies='are pretty!')
-    assert sorted(unmunchify(b).items()) == [('foo', {'lol': True}), ('hello', nt(prop_a=42, prop_b='yop')), ('ponies', 'are pretty!')]
+    assert sorted(unmunchify(b).items()) == [('foo', {'lol': True}),
+                                             ('hello', nt(prop_a=42, prop_b='yop')),
+                                             ('ponies', 'are pretty!')]
 
 
 def test_toJSON():
@@ -372,17 +379,17 @@ def test_munchify_cycle():
     x = dict(id="x")
     y = dict(x=x, id="y")
     x['y'] = y
-    
+
     m = munchify(x)
     assert m.id == "x"
     assert m.y.id == "y"
     assert m.y.x is m
-    
+
     # dict -> list -> dict
     x = dict(id="x")
     y = ["y", x]
     x["y"] = y
-    
+
     m = munchify(x)
     assert m.id == "x"
     assert m.y[0] == "y"
@@ -397,13 +404,13 @@ def test_munchify_cycle():
     assert m.id == "x"
     assert m.y[0] == "y"
     assert m.y[1] is m
-    
+
     # dict1 -> list -> dict2 -> list
     z = dict(id="z")
     y = ["y", z]
     z["y"] = y
     x = dict(id="x", y=y)
-    
+
     m = munchify(x)
     assert m.id == "x"
     assert m.y[0] == "y"
@@ -415,7 +422,7 @@ def test_munchify_cycle():
     y = ("y", z)
     z["y"] = y
     x = dict(id="x", y=y)
-    
+
     m = munchify(x)
     assert m.id == "x"
     assert m.y[0] == "y"
@@ -427,12 +434,12 @@ def test_unmunchify_cycle():
     x = Munch(id="x")
     y = Munch(x=x, id="y")
     x.y = y
-    
+
     d = unmunchify(x)
     assert d["id"] == "x"
     assert d["y"]["id"] == "y"
     assert d["y"]["x"] is d
-    
+
     # munch -> list -> munch
     x = Munch(id="x")
     y = ["y", x]
@@ -452,13 +459,13 @@ def test_unmunchify_cycle():
     assert d["id"] == "x"
     assert d["y"][0] == "y"
     assert d["y"][1] is d
-    
+
     # munch1 -> list -> munch2 -> list
     z = Munch(id="z")
     y = ["y", z]
     z.y = y
     x = Munch(id="x", y=y)
-    
+
     d = unmunchify(x)
     assert d["id"] == "x"
     assert d["y"][0] == "y"
@@ -470,7 +477,7 @@ def test_unmunchify_cycle():
     y = ("y", z)
     z.y = y
     x = Munch(id="x", y=y)
-    
+
     d = unmunchify(x)
     assert d["id"] == "x"
     assert d["y"][0] == "y"
@@ -483,7 +490,7 @@ def test_repr_default_factory():
     assert repr(b).startswith("DefaultFactoryMunch(list, {'")
     assert "'ponies': 'are pretty!'" in repr(b)
 
-    assert eval(repr(b)) == b
+    assert eval(repr(b)) == b  # pylint: disable=eval-used
 
 
 def test_pickling_unpickling_nested():

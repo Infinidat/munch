@@ -36,4 +36,5 @@ def test_toYAML():
     assert yaml.safe_dump(b, default_flow_style=True) == '{foo: [bar, {lol: true}], hello: 42}\n'
     assert b.toYAML(default_flow_style=True) == '{foo: [bar, {lol: true}], hello: 42}\n'
     assert yaml.dump(b, default_flow_style=True) == '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\n'
-    assert b.toYAML(Dumper=yaml.Dumper, default_flow_style=True) == '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\n'
+    assert b.toYAML(Dumper=yaml.Dumper, default_flow_style=True) == \
+        '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\n'

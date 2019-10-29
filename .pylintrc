@@ -1,5 +1,8 @@
 [MESSAGES CONTROL]
-disable=W0201,I0011,C0111,C0103,C0301,W0702,W0622,R,bad-continuation,wrong-import-order,wrong-import-position,ungrouped-imports,trailing-newlines
+disable=invalid-name,missing-docstring,too-few-public-methods,no-else-return
 
 [REPORTS]
 reports=no
+
+[FORMAT]
+max-line-length=120

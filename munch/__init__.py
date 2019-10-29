@@ -292,7 +292,7 @@ class DefaultMunch(Munch):
         if k == '__default__':
             object.__setattr__(self, k, v)
         else:
-            return super(DefaultMunch, self).__setattr__(k, v)
+            super(DefaultMunch, self).__setattr__(k, v)
 
     def __getitem__(self, k):
         """ Gets key if it exists, otherwise returns the default value."""
