@@ -12,6 +12,7 @@ Munch is a dictionary that supports attribute-style access, a la JavaScript:
 
 ```python
 
+>>> from munch import Munch
 >>> b = Munch()
 >>> b.hello = 'world'
 >>> b.hello
@@ -110,6 +111,7 @@ Default Values
 
 ```python
 
+>>> from munch import DefaultMunch
 >>> undefined = object()
 >>> b = DefaultMunch(undefined, {'hello': 'world!'})
 >>> b.hello
@@ -136,6 +138,7 @@ Or you can use ``DefaultFactoryMunch`` to specify a factory for generating missi
 
 ```python
 
+>>> from munch import DefaultFactoryMunch
 >>> b = DefaultFactoryMunch(list, {'hello': 'world!'})
 >>> b.hello
 'world!'

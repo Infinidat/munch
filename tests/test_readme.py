@@ -17,10 +17,6 @@ assert os.path.exists(_README_PATH)
 def test_readme():
     globs = {
         'print_function': print_function,
-        'munch': munch,
-        'Munch': munch.Munch,
-        'DefaultMunch': munch.DefaultMunch,
-        'DefaultFactoryMunch': munch.DefaultFactoryMunch,
     }
     result = doctest.testfile(_README_PATH, module_relative=False, globs=globs)
     assert not result.failed
