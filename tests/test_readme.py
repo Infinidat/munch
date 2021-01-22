@@ -5,8 +5,6 @@ import os
 import sys
 import pytest
 
-import munch
-
 _HERE = os.path.abspath(os.path.dirname(__file__))
 _README_PATH = os.path.join(_HERE, '..', 'README.md')
 assert os.path.exists(_README_PATH)
