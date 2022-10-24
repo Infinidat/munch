@@ -8,7 +8,6 @@ _README_PATH = os.path.join(_HERE, '..', 'README.md')
 assert os.path.exists(_README_PATH)
 
 
-@pytest.mark.skipif(sys.version_info[:2] < (3, 6), reason="Requires Python version >= 3.6")
 @pytest.mark.usefixtures("yaml")
 def test_readme():
     globs = {
