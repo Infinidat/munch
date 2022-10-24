@@ -1,6 +1,5 @@
 import doctest
 import os
-import sys
 import pytest
 
 _HERE = os.path.abspath(os.path.dirname(__file__))
