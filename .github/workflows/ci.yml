@@ -45,5 +45,5 @@ jobs:
       run: python -m pip install --upgrade pip
     - name: Upgrade build tools
       run: pip install --upgrade build wheel setuptools
-    - run: pip install .[testing, yaml]
+    - run: pip install ".[testing,yaml]"
     - run: pylint munch setup.py tests
