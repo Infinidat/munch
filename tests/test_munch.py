@@ -415,7 +415,6 @@ def test_munchify_cycle():
     m = munchify(x)
     assert m.id == "x"
     assert m.y[0] == "y"
-    assert m.y[1] == m
     assert m.y[1] is m
 
     # dict1 -> list -> dict2 -> list
