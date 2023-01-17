@@ -453,6 +453,17 @@ def munchify(x, factory=Munch):
         # Then finish munchifying lists and dicts inside obj (reusing munchified obj if cycles are encountered)
         return post_munchify(partial, obj)
 
+    def pre_munchify_cycles(obj):
+        # If we've already begun munchifying obj, just return the already-created munchified obj
+        try:
+            return seen[id(obj)]
+        except KeyError:
+            pass
+
+        # Otherwise, first partly munchify obj (but without descending into any lists or dicts) and save that
+        seen[id(obj)] = partial = pre_munchify(obj)
+        return partial
+
     def pre_munchify(obj):
         # Here we return a skeleton of munchified obj, which is enough to save for later (in case
         # we need to break cycles) but it needs to filled out in post_munchify
@@ -462,7 +473,7 @@ def munchify(x, factory=Munch):
             return type(obj)()
         elif isinstance(obj, tuple):
             type_factory = getattr(obj, "_make", type(obj))
-            return type_factory(munchify_cycles(item) for item in obj)
+            return type_factory(pre_munchify_cycles(item) for item in obj)
         else:
             return obj
 

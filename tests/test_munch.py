@@ -415,6 +415,7 @@ def test_munchify_cycle():
     m = munchify(x)
     assert m.id == "x"
     assert m.y[0] == "y"
+    assert m.y[1] == m
     assert m.y[1] is m
 
     # dict1 -> list -> dict2 -> list
@@ -557,3 +558,16 @@ def test_get_default_value(munch_obj):
     munch_cls = type(munch_obj)
     kwargs = {} if munch_cls != DefaultFactoryMunch else {"default_factory": munch_obj.default_factory}
     munch_cls.fromDict(data, **kwargs)
+
+
+def test_munchify_tuple_list():
+    data = ([{'A': 'B'}],)
+    actual = munchify(data)
+    expected = ([Munch(A='B')],)
+    assert actual == expected
+
+
+def test_munchify_tuple_list_more_elements():
+    data = (1, 2, [{'A': 'B'}])
+    actual = munchify(data)
+    expected = (1, 2, [Munch({'A': 'B'})])
