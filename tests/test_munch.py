@@ -571,3 +571,4 @@ def test_munchify_tuple_list_more_elements():
     data = (1, 2, [{'A': 'B'}])
     actual = munchify(data)
     expected = (1, 2, [Munch({'A': 'B'})])
+    assert actual == expected
