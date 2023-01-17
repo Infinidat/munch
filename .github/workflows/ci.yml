@@ -40,13 +40,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-    # Install the testing dependencies from setup.cfg, including pylint
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
     - name: Upgrade pip
       run: python -m pip install --upgrade pip
     - name: Upgrade build tools and pytest
       run: pip install --upgrade build wheel setuptools pytest
     - name: Install dependencies
-      run: pip install ".[testing]"
+      run: pip install ".[testing,yaml]"
     - name: Lint
       run: pylint munch setup.py tests
