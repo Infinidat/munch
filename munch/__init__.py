@@ -21,7 +21,7 @@
     converted via Munch.to/fromDict().
 """
 
-from .python3_compat import iterkeys, iteritems, Mapping, u
+from collections.abc import Mapping
 
 try:
     # For python 3.8 and later
@@ -205,7 +205,7 @@ class Munch(dict):
         return f'{self.__class__.__name__}({dict.__repr__(self)})'
 
     def __dir__(self):
-        return list(iterkeys(self))
+        return list(self.keys())
 
     def __getstate__(self):
         """ Implement a serializable interface used for pickling.
@@ -244,7 +244,7 @@ class Munch(dict):
         Override built-in method to call custom __setitem__ method that may
         be defined in subclasses.
         """
-        for k, v in iteritems(dict(*args, **kwargs)):
+        for k, v in dict(*args, **kwargs).items():
             self[k] = v
 
     def get(self, k, d=None):
@@ -475,7 +475,7 @@ def munchify(x, factory=Munch):
         # Here we finish munchifying the parts of obj that were deferred by pre_munchify because they
         # might be involved in a cycle
         if isinstance(obj, Mapping):
-            partial.update((k, munchify_cycles(obj[k])) for k in iterkeys(obj))
+            partial.update((k, munchify_cycles(obj[k])) for k in obj.keys())
         elif isinstance(obj, list):
             partial.extend(munchify_cycles(item) for item in obj)
         elif isinstance(obj, tuple):
@@ -537,7 +537,7 @@ def unmunchify(x):
         # Here we finish unmunchifying the parts of obj that were deferred by pre_unmunchify because they
         # might be involved in a cycle
         if isinstance(obj, Mapping):
-            partial.update((k, unmunchify_cycles(obj[k])) for k in iterkeys(obj))
+            partial.update((k, unmunchify_cycles(obj[k])) for k in obj.keys())
         elif isinstance(obj, list):
             partial.extend(unmunchify_cycles(v) for v in obj)
         elif isinstance(obj, tuple):
@@ -626,15 +626,15 @@ try:
             >>> yaml.dump(b, default_flow_style=True)
             '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\\n'
         """
-        return dumper.represent_mapping(u('!munch.Munch'), data)
+        return dumper.represent_mapping('!munch.Munch', data)
 
     for loader_name in ("BaseLoader", "FullLoader", "SafeLoader", "Loader", "UnsafeLoader", "DangerLoader"):
         LoaderCls = getattr(yaml, loader_name, None)
         if LoaderCls is None:
             # This code supports both PyYAML 4.x and 5.x versions
             continue
-        yaml.add_constructor(u('!munch'), from_yaml, Loader=LoaderCls)
-        yaml.add_constructor(u('!munch.Munch'), from_yaml, Loader=LoaderCls)
+        yaml.add_constructor('!munch', from_yaml, Loader=LoaderCls)
+        yaml.add_constructor('!munch.Munch', from_yaml, Loader=LoaderCls)
 
     SafeRepresenter.add_representer(Munch, to_yaml_safe)
     SafeRepresenter.add_multi_representer(Munch, to_yaml_safe)
