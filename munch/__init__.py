@@ -412,6 +412,72 @@ class RecursiveMunch(DefaultFactoryMunch):
         return type(self).fromDict(self)
 
 
+class SnakifyMunch(Munch):
+    """Munch that replaces handles attributes as snake_case. Useful for API access
+        when official Python SDKs use snake_case, but direct API access is camelCase
+        (e.g. GCP API).
+        
+        >>> from functools import partial
+        >>> munchify = partial(munchify, factory=SnakifyMunch)
+        
+        >>> b = munchify({
+            "hello_world": "I'm already snake_case", 
+            "helloWorld": "I am camelCase", 
+            "HelloWorld": "I am PascalCase",
+        })
+        >>> b.hello_world
+        "I'm already snake_case"
+        >>> b._hello_world
+        'I am PascalCase'
+        
+        >>> b.hello_world = 1
+        >>> b
+        DeCamelMunch({
+            'hello_world': 1, 
+            'helloWorld': 'I am camelCase', 
+            'HelloWorld': 'I am PascalCase',
+        })
+        >>> b.helloWorld = 2
+        >>> b
+        DeCamelMunch({
+            'hello_world': 1, 
+            'helloWorld': 2, 
+            'HelloWorld': 'I am PascalCase',
+        })
+        >>> b.HelloWorld = 3
+        >>> b
+        DeCamelMunch({'hello_world': 1, 'helloWorld': 2, 'HelloWorld': 3})
+        >>> b._hello_world = 4
+        >>> b
+        DeCamelMunch({'hello_world': 1, 'helloWorld': 2, 'HelloWorld': 4})
+        
+        >>> b = munchify({"helloWorld": "I am camelCase", "HelloWorld": "I am PascalCase"})
+        >>> b.hello_world
+        "I am camelCase"
+        >>> b.hello_world = 2
+        >>> b
+        DeCamelMunch({'helloWorld': 2, 'HelloWorld': 'I am PascalCase'})
+
+        >>> b = munchify({
+            "hello_world": {"helloWorld": "I am camelCase"}, 
+            "HelloWorld": "I am PascalCase",
+        })
+        >>> b.hello_world.hello_world
+        "I am camelCase"
+    """
+
+    def __getattr__(self, k):
+        if k in self:
+            return super().__getattr__(k)
+        init, *temp = k.split("_")
+        key = "".join([init.lower(), *map(str.title, temp)])
+        return super().__getattr__(key)
+
+    def __setattr__(self, k, v):
+        key = re.sub(r"(?<!^)(?=[A-Z])", "_", k).lower()
+        super().__setattr__(key, v)
+
+
 # While we could convert abstract types like Mapping or Iterable, I think
 # munchify is more likely to "do what you mean" if it is conservative about
 # casting (ex: isinstance(str,Iterable) == True ).
