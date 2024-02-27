@@ -432,31 +432,31 @@ class SnakifyMunch(Munch):
         
         >>> b.hello_world = 1
         >>> b
-        DeCamelMunch({
+        SnakifyMunch({
             'hello_world': 1, 
             'helloWorld': 'I am camelCase', 
             'HelloWorld': 'I am PascalCase',
         })
         >>> b.helloWorld = 2
         >>> b
-        DeCamelMunch({
+        SnakifyMunch({
             'hello_world': 1, 
             'helloWorld': 2, 
             'HelloWorld': 'I am PascalCase',
         })
         >>> b.HelloWorld = 3
         >>> b
-        DeCamelMunch({'hello_world': 1, 'helloWorld': 2, 'HelloWorld': 3})
+        SnakifyMunch({'hello_world': 1, 'helloWorld': 2, 'HelloWorld': 3})
         >>> b._hello_world = 4
         >>> b
-        DeCamelMunch({'hello_world': 1, 'helloWorld': 2, 'HelloWorld': 4})
+        SnakifyMunch({'hello_world': 1, 'helloWorld': 2, 'HelloWorld': 4})
         
         >>> b = munchify({"helloWorld": "I am camelCase", "HelloWorld": "I am PascalCase"})
         >>> b.hello_world
         "I am camelCase"
         >>> b.hello_world = 2
         >>> b
-        DeCamelMunch({'helloWorld': 2, 'HelloWorld': 'I am PascalCase'})
+        SnakifyMunch({'helloWorld': 2, 'HelloWorld': 'I am PascalCase'})
 
         >>> b = munchify({
             "hello_world": {"helloWorld": "I am camelCase"}, 
