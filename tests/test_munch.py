@@ -225,6 +225,15 @@ def test_reserved_attributes(attrname):
         assert attr == 'munch'
     elif attrname == '__dict__':
         assert attr == {}
+    elif attrname == '__static_attributes__':
+        # Python 3.13: added __static_attributes__ attribute, populated by the
+        # compiler, containing a tuple of names of attributes of this class
+        # which are accessed through self.X from any function in its body.
+        assert isinstance(attr, tuple)
+    elif attrname == '__firstlineno__':
+        # Python 3.13: added __firstlineno__ attribute, populated by the
+        # compiler, containing the line number of the first line of the class definition
+        assert isinstance(attr, int)
     else:
         assert callable(attr)
 
