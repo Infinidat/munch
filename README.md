@@ -170,3 +170,9 @@ Feedback
 --------
 
 Open a ticket / fork the project on [GitHub](http://github.com/Infinidat/munch).
+
+
+Development
+--------
+
+See [Development Guide](docs/development.md)
