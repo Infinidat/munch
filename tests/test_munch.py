@@ -571,3 +571,27 @@ def test_munchify_tuple_list_more_elements():
     actual = munchify(data)
     expected = (1, 2, [Munch({'A': 'B'})])
     assert actual == expected
+
+
+@pytest.mark.parametrize('tuple_type', [tuple, namedtuple('Items', ['items'])._make])
+def test_unmunchify_list_inside_tuple(tuple_type):
+    source = tuple_type([[Munch(value=1), 2]])
+
+    result = unmunchify(source)
+
+    assert result == tuple_type([[{'value': 1}, 2]])
+    assert not isinstance(result[0][0], Munch)
+    assert source[0] == [Munch(value=1), 2]
+
+
+def test_unmunchify_tuple_preserves_shared_cyclic_list():
+    items = [Munch(value=1)]
+    items.append(items)
+    source = Munch(first=(items,), second=items)
+
+    result = unmunchify(source)
+
+    assert len(result['second']) == 2
+    assert result['first'][0] is result['second']
+    assert result['second'][0] == {'value': 1}
+    assert result['second'][1] is result['second']

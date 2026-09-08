@@ -516,7 +516,11 @@ def unmunchify(x):
             pass
 
         # Otherwise, first partly unmunchify obj (but without descending into any lists or dicts) and save that
-        seen[id(obj)] = partial = pre_unmunchify(obj)
+        partial = pre_unmunchify(obj)
+        # A tuple may have been memoized while converting its contents.
+        if id(obj) in seen:
+            return seen[id(obj)]
+        seen[id(obj)] = partial
         # Then finish unmunchifying lists and dicts inside obj (reusing unmunchified obj if cycles are encountered)
         return post_unmunchify(partial, obj)
 
@@ -540,9 +544,6 @@ def unmunchify(x):
             partial.update((k, unmunchify_cycles(obj[k])) for k in obj.keys())
         elif isinstance(obj, list):
             partial.extend(unmunchify_cycles(v) for v in obj)
-        elif isinstance(obj, tuple):
-            for (value_partial, value) in zip(partial, obj):
-                post_unmunchify(value_partial, value)
 
         return partial
 
