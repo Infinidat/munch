@@ -382,6 +382,14 @@ class DefaultFactoryMunch(Munch):
         self[k] = self.default_factory()
         return self[k]
 
+    def __getstate__(self):
+        return (self.default_factory, dict(self))
+
+    def __setstate__(self, state):
+        self.default_factory, state_dict = state
+        self.clear()
+        self.update(state_dict)
+
 
 class RecursiveMunch(DefaultFactoryMunch):
     """A Munch that calls an instance of itself to generate values for

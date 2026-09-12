@@ -4,7 +4,7 @@ import pickle
 from collections import namedtuple
 
 import pytest
-from munch import DefaultFactoryMunch, AutoMunch, DefaultMunch, Munch, munchify, unmunchify
+from munch import DefaultFactoryMunch, AutoMunch, DefaultMunch, Munch, RecursiveMunch, munchify, unmunchify
 
 
 def test_base():
@@ -571,3 +571,26 @@ def test_munchify_tuple_list_more_elements():
     actual = munchify(data)
     expected = (1, 2, [Munch({'A': 'B'})])
     assert actual == expected
+
+
+@pytest.mark.parametrize('protocol', range(pickle.HIGHEST_PROTOCOL + 1))
+def test_pickle_default_factory(protocol):
+    original = DefaultFactoryMunch(list, existing=[1])
+    restored = pickle.loads(pickle.dumps(original, protocol=protocol))
+    assert restored == original
+    assert restored.default_factory is list
+    assert restored.first == []
+    assert restored.second == []
+    assert restored.first is not restored.second
+    assert 'first' not in original
+
+
+@pytest.mark.parametrize('protocol', range(pickle.HIGHEST_PROTOCOL + 1))
+def test_pickle_recursive_munch(protocol):
+    original = RecursiveMunch()
+    original.parent.child = 1
+    restored = pickle.loads(pickle.dumps(original, protocol=protocol))
+    assert restored == original
+    restored.parent.other.value = 2
+    assert restored.parent.other.value == 2
+    assert 'other' not in original.parent
