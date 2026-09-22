@@ -108,7 +108,12 @@ If you have [PyYAML](http://pyyaml.org/wiki/PyYAML) installed, Munch attempts to
 
 ```
 
-In addition, Munch instances will have a ``toYAML()`` method that returns the YAML string using ``yaml.safe_dump()``. This method also replaces ``__str__`` if present, as I find it far more readable. You can revert back to Python's default use of ``__repr__`` with a simple assignment: ``Munch.__str__ = Munch.__repr__``. The Munch class will also have a static method ``Munch.fromYAML()``, which loads a Munch out of a YAML string.
+In addition, Munch instances will have a ``toYAML()`` method that returns a YAML
+string using ``yaml.safe_dump()`` by default. To use a different dumper, pass the
+``Dumper`` keyword argument, for example ``b.toYAML(Dumper=yaml.Dumper)``.
+Installing PyYAML does not replace ``__str__``; call ``b.toYAML()`` explicitly when
+YAML output is needed. The Munch class also has a class method
+``Munch.fromYAML()``, which loads a Munch from a YAML string.
 
 Finally, Munch converts easily and recursively to (``unmunchify()``, ``Munch.toDict()``) and from (``munchify()``, ``Munch.fromDict()``) a normal ``dict``, making it easy to cleanly serialize them in other formats.
 
