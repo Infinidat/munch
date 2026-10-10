@@ -339,7 +339,7 @@ class DefaultMunch(Munch):
         return type(self).fromDict(self, default=self.__default__)
 
     def __repr__(self):
-        return f'{type(self).__name__}({self.__undefined__!r}, {dict.__repr__(self)})'
+        return f'{type(self).__name__}({self.__default__!r}, {dict.__repr__(self)})'
 
 
 class DefaultFactoryMunch(Munch):
@@ -369,7 +369,9 @@ class DefaultFactoryMunch(Munch):
         return type(self).fromDict(self, default_factory=self.default_factory)
 
     def __repr__(self):
-        factory = self.default_factory.__name__
+        factory = getattr(self.default_factory, '__name__', None)
+        if factory is None:
+            factory = repr(self.default_factory)
         return f'{type(self).__name__}({factory}, {dict.__repr__(self)})'
 
     def __setattr__(self, k, v):

@@ -571,3 +571,30 @@ def test_munchify_tuple_list_more_elements():
     actual = munchify(data)
     expected = (1, 2, [Munch({'A': 'B'})])
     assert actual == expected
+
+
+def test_repr_default_ignores_undefined_key():
+    value = DefaultMunch('missing', {'__undefined__': 'stored'})
+    assert repr(value) == "DefaultMunch('missing', {'__undefined__': 'stored'})"
+    restored = eval(repr(value))
+    assert restored.__default__ == 'missing'
+    assert restored == value
+
+
+def test_repr_default_factory_callable_instance():
+    class Factory:
+        def __call__(self):
+            raise AssertionError('repr must not call the default factory')
+
+        def __repr__(self):
+            return 'Factory()'
+
+    value = DefaultFactoryMunch(Factory(), {'a': 1})
+    assert repr(value) == "DefaultFactoryMunch(Factory(), {'a': 1})"
+
+
+def test_repr_default_factory_partial():
+    from functools import partial
+    factory = partial(list, (1, 2))
+    value = DefaultFactoryMunch(factory, {'a': 1})
+    assert repr(value) == 'DefaultFactoryMunch({}, {{\'a\': 1}})'.format(repr(factory))
