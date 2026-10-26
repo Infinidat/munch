@@ -205,7 +205,7 @@ class Munch(dict):
         return f'{self.__class__.__name__}({dict.__repr__(self)})'
 
     def __dir__(self):
-        return list(self.keys())
+        return [key for key in self.keys() if isinstance(key, str)]
 
     def __getstate__(self):
         """ Implement a serializable interface used for pickling.

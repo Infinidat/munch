@@ -121,6 +121,13 @@ def test_dir():
     assert dir(m) == ['a', 'b']
 
 
+@pytest.mark.parametrize('key', [1, None, ('a',), b'a'])
+def test_dir_with_non_string_keys(key):
+    m = Munch({key: 'value', 'a': 1})
+    assert dir(m) == ['a']
+    assert m[key] == 'value'
+
+
 def test_fromDict():
     b = Munch.fromDict({'urmom': {'sez': {'what': 'what'}}})
     assert b.urmom.sez.what == 'what'
