@@ -571,3 +571,36 @@ def test_munchify_tuple_list_more_elements():
     actual = munchify(data)
     expected = (1, 2, [Munch({'A': 'B'})])
     assert actual == expected
+
+
+def test_munchify_shared_list_in_tuple_is_filled_once():
+    items = [{'value': 1}]
+
+    result = munchify((items, items))
+
+    assert result == ([Munch(value=1)], [Munch(value=1)])
+    assert result[0] is result[1]
+    assert result[0] is not items
+    assert items == [{'value': 1}]
+
+
+def test_munchify_shared_list_in_separate_tuples_is_filled_once():
+    items = [{'value': 1}]
+
+    result = munchify({'first': (items,), 'second': (items,)})
+
+    assert len(result.first[0]) == 1
+    assert result.first[0] is result.second[0]
+    assert isinstance(result.first[0][0], Munch)
+
+
+def test_munchify_shared_cyclic_list_in_tuple_is_filled_once():
+    items = [{'value': 1}]
+    items.append(items)
+
+    result = munchify((items, items))
+
+    assert len(result[0]) == 2
+    assert result[0] is result[1]
+    assert result[0][1] is result[0]
+    assert isinstance(result[0][0], Munch)

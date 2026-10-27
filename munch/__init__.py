@@ -440,6 +440,7 @@ def munchify(x, factory=Munch):
     """
     # Munchify x, using `seen` to track object cycles
     seen = dict()
+    filled = set()
 
     def munchify_cycles(obj):
         partial, already_seen = pre_munchify_cycles(obj)
@@ -474,6 +475,9 @@ def munchify(x, factory=Munch):
     def post_munchify(partial, obj):
         # Here we finish munchifying the parts of obj that were deferred by pre_munchify because they
         # might be involved in a cycle
+        if id(obj) in filled:
+            return partial
+        filled.add(id(obj))
         if isinstance(obj, Mapping):
             partial.update((k, munchify_cycles(obj[k])) for k in obj.keys())
         elif isinstance(obj, list):
