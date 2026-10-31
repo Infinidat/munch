@@ -70,6 +70,30 @@ def test_setattr():
         b['values']  # pylint: disable=pointless-statement
 
 
+@pytest.mark.parametrize('error_type', [ValueError, TypeError, KeyboardInterrupt, SystemExit])
+def test_setattr_preserves_non_key_errors(error_type):
+    error = error_type('assignment failed')
+
+    class ValidatedMunch(Munch):
+        def __setitem__(self, key, value):
+            raise error
+
+    munch = ValidatedMunch()
+    with pytest.raises(error_type) as caught:
+        munch.field = 'value'
+    assert caught.value is error
+    assert munch == {}
+
+
+def test_setattr_translates_key_error():
+    class RestrictedMunch(Munch):
+        def __setitem__(self, key, value):
+            raise KeyError(key)
+
+    with pytest.raises(AttributeError, match='field'):
+        RestrictedMunch().field = 'value'
+
+
 def test_pickle():
     b = DefaultMunch.fromDict({"a": "b"})
     assert pickle.loads(pickle.dumps(b)) == b
