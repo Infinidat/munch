@@ -142,7 +142,7 @@ class Munch(dict):
         except AttributeError:
             try:
                 self[k] = v
-            except:
+            except KeyError:
                 raise AttributeError(k)
         else:
             object.__setattr__(self, k, v)
