@@ -346,6 +346,8 @@ class DefaultFactoryMunch(Munch):
     """ A Munch that calls a user-specified function to generate values for
         missing keys like collections.defaultdict.
 
+        Set ``default_factory`` to None to disable missing-value creation.
+
         >>> b = DefaultFactoryMunch(list, {'hello': 'world!'})
         >>> b.hello
         'world!'
@@ -379,6 +381,8 @@ class DefaultFactoryMunch(Munch):
             super().__setattr__(k, v)
 
     def __missing__(self, k):
+        if self.default_factory is None:
+            raise KeyError(k)
         self[k] = self.default_factory()
         return self[k]
 
