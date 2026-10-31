@@ -349,6 +349,27 @@ def test_setattr_default_factory():
     assert 'default_factory' not in b
 
 
+@pytest.mark.parametrize('disable_after_creation', [False, True])
+def test_none_default_factory(disable_after_creation):
+    b = DefaultFactoryMunch(list if disable_after_creation else None, existing='value')
+    b.default_factory = None
+    assert b.existing == 'value'
+    assert b['existing'] == 'value'
+    assert b.get('missing', 'fallback') == 'fallback'
+    with pytest.raises(KeyError, match='missing'):
+        b['missing']
+    with pytest.raises(AttributeError, match='missing'):
+        b.missing
+    assert 'missing' not in b
+
+
+def test_default_factory_can_be_enabled_again():
+    b = DefaultFactoryMunch(None)
+    b.default_factory = list
+    b.items_list.append('value')
+    assert b['items_list'] == ['value']
+
+
 def test_delattr_default_factory():
     b = DefaultFactoryMunch(lambda: None, lol=42)
     del b.lol
