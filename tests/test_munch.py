@@ -4,7 +4,7 @@ import pickle
 from collections import namedtuple
 
 import pytest
-from munch import DefaultFactoryMunch, AutoMunch, DefaultMunch, Munch, munchify, unmunchify
+from munch import DefaultFactoryMunch, AutoMunch, DefaultMunch, Munch, RecursiveMunch, munchify, unmunchify
 
 
 def test_base():
@@ -571,3 +571,22 @@ def test_munchify_tuple_list_more_elements():
     actual = munchify(data)
     expected = (1, 2, [Munch({'A': 'B'})])
     assert actual == expected
+
+
+@pytest.mark.parametrize("from_dict", [False, True])
+def test_recursive_munch_missing_children_preserve_subclass(from_dict):
+    class CustomRecursiveMunch(RecursiveMunch):
+        def custom_method(self):
+            return "custom"
+
+    root = (
+        CustomRecursiveMunch.fromDict({"existing": {}})
+        if from_dict else CustomRecursiveMunch()
+    )
+    parent = root.existing if from_dict else root
+    child = parent.child
+    assert isinstance(child, CustomRecursiveMunch)
+    assert child.default_factory is CustomRecursiveMunch
+    assert child.custom_method() == "custom"
+    assert isinstance(child.grandchild, CustomRecursiveMunch)
+    assert child is not parent.other_child

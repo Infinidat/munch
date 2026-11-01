@@ -401,7 +401,7 @@ class RecursiveMunch(DefaultFactoryMunch):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(RecursiveMunch, *args, **kwargs)
+        super().__init__(type(self), *args, **kwargs)
 
     @classmethod
     def fromDict(cls, d):
