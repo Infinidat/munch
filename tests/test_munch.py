@@ -136,6 +136,51 @@ def test_copy():
     assert c == m
 
 
+@pytest.mark.parametrize('convert', [munchify, unmunchify])
+@pytest.mark.parametrize('fields', [None, 'value', ['value']])
+def test_tuple_with_unrelated_make(convert, fields):
+    class TupleWithMake(tuple):
+        _fields = fields
+
+        @classmethod
+        def _make(cls, values):
+            raise AssertionError((cls, values))
+
+    value = Munch(value=1)
+    original = TupleWithMake([value])
+    converted = convert(original)
+
+    assert isinstance(converted, TupleWithMake)
+    assert converted is not original
+    assert converted[0] == {'value': 1}
+    assert converted[0] is not value
+    assert isinstance(converted[0], Munch) == (convert is munchify)
+
+
+@pytest.mark.parametrize('convert', [munchify, unmunchify])
+def test_tuple_instance_make_is_not_a_namedtuple_factory(convert):
+    class CustomTuple(tuple):
+        pass
+
+    original = CustomTuple([Munch(value=1)])
+    vars(original).update(_fields=('value',), _make=None)
+
+    converted = convert(original)
+
+    assert isinstance(converted, CustomTuple)
+    assert converted[0] == {'value': 1}
+
+
+@pytest.mark.parametrize('convert', [munchify, unmunchify])
+def test_empty_namedtuple_conversion(convert):
+    empty = namedtuple('Empty', [])
+
+    converted = convert(empty())
+
+    assert isinstance(converted, empty)
+    assert converted == ()
+
+
 def test_munchify():
     b = munchify({'urmom': {'sez': {'what': 'what'}}})
     assert b.urmom.sez.what == 'what'
