@@ -419,6 +419,16 @@ class RecursiveMunch(DefaultFactoryMunch):
 # Should you disagree, it is not difficult to duplicate this function with
 # more aggressive coercion to suit your own purposes.
 
+def _tuple_factory(obj):
+    """Select the namedtuple class factory or the tuple subclass itself."""
+    tuple_type = type(obj)
+    if isinstance(getattr(tuple_type, '_fields', None), tuple):
+        make = getattr(tuple_type, '_make', None)
+        if callable(make):
+            return make
+    return tuple_type
+
+
 def munchify(x, factory=Munch):
     """ Recursively transforms a dictionary into a Munch via copy.
 
@@ -466,7 +476,7 @@ def munchify(x, factory=Munch):
         elif isinstance(obj, list):
             return type(obj)()
         elif isinstance(obj, tuple):
-            type_factory = getattr(obj, "_make", type(obj))
+            type_factory = _tuple_factory(obj)
             return type_factory(pre_munchify_cycles(item)[0] for item in obj)
         else:
             return obj
@@ -528,7 +538,7 @@ def unmunchify(x):
         elif isinstance(obj, list):
             return type(obj)()
         elif isinstance(obj, tuple):
-            type_factory = getattr(obj, "_make", type(obj))
+            type_factory = _tuple_factory(obj)
             return type_factory(unmunchify_cycles(item) for item in obj)
         else:
             return obj
