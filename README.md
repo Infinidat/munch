@@ -160,6 +160,32 @@ Or you can use ``DefaultFactoryMunch`` to specify a factory for generating missi
 ```
 
 
+Copying
+-------
+
+``copy()`` returns a shallow copy, like ``dict.copy()``: the outer Munch is new,
+but nested values are shared. The Munch subclass and its default value or factory
+are preserved.
+
+```python
+
+>>> original = Munch(nested=Munch(value=1))
+>>> copied = original.copy()
+>>> copied is original
+False
+>>> copied.nested is original.nested
+True
+>>> from copy import deepcopy
+>>> deepcopy(original).nested is original.nested
+False
+
+```
+
+Earlier versions recursively converted nested dictionaries and containers when
+calling ``copy()``. Use ``Munch.fromDict(original)`` for that behavior, or the
+corresponding subclass's ``fromDict`` with its default value or factory.
+
+
 Miscellaneous
 -------------
 
