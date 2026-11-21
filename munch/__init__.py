@@ -237,7 +237,13 @@ class Munch(dict):
         return munchify(d, cls)
 
     def copy(self):
-        return type(self).fromDict(self)
+        """Return a shallow copy, preserving references to nested values."""
+        return type(self)(self._copy_items())
+
+    def _copy_items(self):
+        # Keep custom __getitem__ behavior when copying subclasses.
+        # pylint: disable=consider-using-dict-items
+        return ((key, self[key]) for key in self.keys())
 
     def update(self, *args, **kwargs):
         """
@@ -336,7 +342,7 @@ class DefaultMunch(Munch):
         return munchify(d, factory=lambda d_: cls(default, d_))
 
     def copy(self):
-        return type(self).fromDict(self, default=self.__default__)
+        return type(self)(self.__default__, self._copy_items())
 
     def __repr__(self):
         return f'{type(self).__name__}({self.__undefined__!r}, {dict.__repr__(self)})'
@@ -366,7 +372,7 @@ class DefaultFactoryMunch(Munch):
         return munchify(d, factory=lambda d_: cls(default_factory, d_))
 
     def copy(self):
-        return type(self).fromDict(self, default_factory=self.default_factory)
+        return type(self)(self.default_factory, self._copy_items())
 
     def __repr__(self):
         factory = self.default_factory.__name__
@@ -409,7 +415,7 @@ class RecursiveMunch(DefaultFactoryMunch):
         return munchify(d, factory=cls)
 
     def copy(self):
-        return type(self).fromDict(self)
+        return type(self)(self._copy_items())
 
 
 # While we could convert abstract types like Mapping or Iterable, I think

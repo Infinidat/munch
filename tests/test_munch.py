@@ -130,8 +130,8 @@ def test_copy():
     m = Munch(urmom=Munch(sez=Munch(what='what')))
     c = m.copy()
     assert c is not m
-    assert c.urmom is not m.urmom
-    assert c.urmom.sez is not m.urmom.sez
+    assert c.urmom is m.urmom
+    assert c.urmom.sez is m.urmom.sez
     assert c.urmom.sez.what == 'what'
     assert c == m
 
@@ -283,10 +283,11 @@ def test_copy_default():
     m = DefaultMunch.fromDict({'urmom': {'sez': {'what': 'what'}}}, undefined)
     c = m.copy()
     assert c is not m
-    assert c.urmom is not m.urmom
-    assert c.urmom.sez is not m.urmom.sez
+    assert c.urmom is m.urmom
+    assert c.urmom.sez is m.urmom.sez
     assert c.urmom.sez.what == 'what'
     assert c == m
+    assert c.__default__ is undefined
     assert c.urmom.sez.foo is undefined
     assert c.urmom.sez.__undefined__ is undefined
 
@@ -370,10 +371,11 @@ def test_copy_default_factory():
     m = DefaultFactoryMunch.fromDict({'urmom': {'sez': {'what': 'what'}}}, undefined)
     c = m.copy()
     assert c is not m
-    assert c.urmom is not m.urmom
-    assert c.urmom.sez is not m.urmom.sez
+    assert c.urmom is m.urmom
+    assert c.urmom.sez is m.urmom.sez
     assert c.urmom.sez.what == 'what'
     assert c == m
+    assert c.default_factory is undefined
 
 
 def test_munchify_default_factory():
