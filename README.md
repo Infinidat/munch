@@ -38,6 +38,29 @@ True
 ```
 
 
+Keys that are not Python identifiers
+-----------------------------------
+
+Use dictionary access for keys containing hyphens, spaces, or other characters
+that Python does not allow in an attribute name. Munch preserves these keys;
+it does not replace hyphens with underscores.
+
+```python
+>>> from munch import Munch
+>>> settings = Munch({'llm-api': 'local', 'display name': 'Assistant'})
+>>> settings['llm-api']
+'local'
+>>> settings['display name']
+'Assistant'
+>>> settings['llm-api'] = 'remote'
+>>> getattr(settings, 'llm-api')
+'remote'
+```
+
+Python interprets `settings.llm-api` as subtraction (`settings.llm - api`),
+so that expression cannot access the `llm-api` key. Square brackets also work
+for keys that are Python keywords, such as `settings['class']`.
+
 Dictionary Methods
 ------------------
 
