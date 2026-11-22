@@ -143,6 +143,38 @@ True
 
 ```
 
+If missing attributes should raise `AttributeError`, use `Munch` or
+`Munch.fromDict()` instead. This also lets `getattr()` use its fallback value
+and lets `hasattr()` report missing attributes:
+
+```python
+>>> from munch import Munch, DefaultMunch
+>>> strict = Munch.fromDict({'metadata': {'name': 'example'}})
+>>> getattr(strict, 'missing', 1)
+1
+>>> hasattr(strict, 'missing')
+False
+>>> hasattr(strict.metadata, 'missing')
+False
+```
+
+`DefaultMunch` returns its configured default for missing attributes (by default,
+`None`). Therefore `getattr()` does not use its own fallback, and `hasattr()`
+returns `True`. Test dictionary membership to check whether a key actually
+exists:
+
+```python
+>>> defaults = DefaultMunch.fromDict({'metadata': {'name': 'example'}})
+>>> getattr(defaults, 'missing', 1) is None
+True
+>>> hasattr(defaults, 'missing')
+True
+>>> 'missing' in defaults
+False
+>>> 'metadata' in defaults
+True
+```
+
 Or you can use ``DefaultFactoryMunch`` to specify a factory for generating missing attributes. The first argument is the factory:
 
 ```python
